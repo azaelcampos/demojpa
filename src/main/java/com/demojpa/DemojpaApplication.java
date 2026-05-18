@@ -35,11 +35,15 @@ public class DemojpaApplication implements CommandLineRunner {
 		//encontrarPorIds();
 		buscarTodos();
 		
-		
-		
-		
 	}
+        private void testConexion() {
 		
+		     if (repoCategoria != null)
+		        System.out.println("Conexion exitosa: " + repoCategoria);
+		     else
+			    System.out.println("error en conexion");
+	    }
+        
 		private void guardar() {
 			Categoria categoria = new Categoria();
 			categoria.setNombre("Trips en la playa");
@@ -93,20 +97,11 @@ public class DemojpaApplication implements CommandLineRunner {
 		
 		private void buscarTodos() {
 			Iterable<Categoria> categoria = repoCategoria.findAll();
-			for (Categoria cat : categoria);
+			for (Categoria cat : categoria)
 			    System.out.println(cat.getNombre() + " " + cat.getDescripcion());
 			     
 		}
 		
-		
-		
-		
-	private void testConexion() {
-		
-		if (repoCategoria != null)
-		    System.out.println("Conexion exitosa: " + repoCategoria);
-		else
-			System.out.println("error en conexion");
-	}
+	
 
 }
