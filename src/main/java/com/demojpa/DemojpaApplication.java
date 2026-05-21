@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import com.demojpa.models.Categoria;
 import com.demojpa.repository.ICategoriaRepository;
@@ -33,7 +36,17 @@ public class DemojpaApplication implements CommandLineRunner {
 		//cantidadCategorias();
 		//eliminarTodo();
 		//encontrarPorIds();
-		buscarTodos();
+		//buscarTodos();
+		//existeId();
+		//guardarTodas();
+		
+		//Metodos con JPARepository
+		//buscarTodosJpa();
+		//borrarEnBatch();
+		//buscarTodosOrdenados();
+		//buscarTodosOrdenados();
+		//buscarTodoEnPaginacion();
+		
 		
 	}
         private void testConexion() {
@@ -102,6 +115,61 @@ public class DemojpaApplication implements CommandLineRunner {
 			     
 		}
 		
-	
-
+		private void existeId() {
+			boolean existe = repoCategoria.existsById(4);
+			System.out.println("La categoria existe: " + existe);
+		}
+		
+		private List<Categoria> getCategoria(){
+			
+			List<Categoria> lista = new LinkedList<Categoria>();
+			
+			Categoria cat1 = new Categoria();
+			cat1.setNombre("Trips en la playa");
+			cat1.setDescripcion("Paseos en la playa...");
+			
+			Categoria cat2 = new Categoria();
+			cat1.setNombre("Trips en la ciudad");
+			cat1.setDescripcion("Paseos en la ciudad...");
+			
+			lista.add(cat1);
+			lista.add(cat2);
+			
+			return lista;
+			
+		}
+		
+		private void guardarTodas() {
+			List<Categoria> lista = getCategoria();
+			repoCategoria.saveAll(lista);
+		}
+		
+		
+		private void buscarTodosJpa() {
+			List<Categoria> lista = repoCategoria.findAll();
+			for (Categoria cat : lista) {
+				System.out.println(cat.getId() + " " + cat.getNombre());
+			}
+		}
+		
+		private void borrarEnBatch() {
+			repoCategoria.deleteAllInBatch();
+		}
+		
+		private void buscarTodosOrdenados() {
+			List<Categoria> lista = repoCategoria.findAll(Sort.by("nombre"));
+			for (Categoria cat : lista)
+				System.out.println(cat.getId() + " " + cat.getNombre());
+		}
+		
+		private void buscarTodoEnPaginacion() {
+			Page<Categoria> page = repoCategoria.findAll(PageRequest.of(0, 5));
+			System.out.println("Total Categorias: " + page.getTotalElements());
+			System.out.println("Total Paginas: " + page.getTotalPages());
+			for (Categoria cat : page)
+				System.out.println(cat.getId() + " " + cat.getNombre());
+		}
+		
+		
+		
 }
