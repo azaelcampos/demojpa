@@ -1,5 +1,6 @@
 package com.demojpa;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -13,13 +14,28 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import com.demojpa.models.Categoria;
+import com.demojpa.models.Perfil;
+import com.demojpa.models.Trip;
+import com.demojpa.models.Usuario;
 import com.demojpa.repository.ICategoriaRepository;
+import com.demojpa.repository.IPerfilesRepository;
+import com.demojpa.repository.ITripRepository;
+import com.demojpa.repository.IUsuariosRepository;
 
 @SpringBootApplication
 public class DemojpaApplication implements CommandLineRunner {
 	
 	@Autowired
+	private ITripRepository repoTrip;
+	
+	@Autowired
 	private ICategoriaRepository repoCategoria;
+	
+	@Autowired
+	private IPerfilesRepository repoPerfil;
+	
+	@Autowired
+	private IUsuariosRepository repoUsuario;
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemojpaApplication.class, args);
@@ -29,6 +45,7 @@ public class DemojpaApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		//llamar a otro metodos
 		//testConexion();
+		
 		//guardar();
 		//buscarPorId();
 		//modificar();
@@ -44,11 +61,22 @@ public class DemojpaApplication implements CommandLineRunner {
 		//buscarTodosJpa();
 		//borrarEnBatch();
 		//buscarTodosOrdenados();
-		//buscarTodosOrdenados();
 		//buscarTodoEnPaginacion();
+		
+		//Clase Relaciones
+		//buscarTrips();
+		//guardarTrip();
+		//crearPerfiles();
+		//crearUsuarioConDosPerfiles();
+		//getUsuario();
+		//buscarTripPorEstatus();
+		//buscarTripPorDestacadoEstatusOrdenadosDescId();
+		//buscarTripEntreCosto();
+		//buscarTripEstosEstatus();
 		
 		
 	}
+	
         private void testConexion() {
 		
 		     if (repoCategoria != null)
@@ -59,8 +87,8 @@ public class DemojpaApplication implements CommandLineRunner {
         
 		private void guardar() {
 			Categoria categoria = new Categoria();
-			categoria.setNombre("Trips en la playa");
-			categoria.setDescripcion("Todo tipo de paseos en la playa");
+			categoria.setNombre("Trips en la laguna");
+			categoria.setDescripcion("Todo tipo de paseos en la laguna");
 			repoCategoria.save(categoria);
 		}
 		
@@ -116,7 +144,7 @@ public class DemojpaApplication implements CommandLineRunner {
 		}
 		
 		private void existeId() {
-			boolean existe = repoCategoria.existsById(4);
+			boolean existe = repoCategoria.existsById(3);
 			System.out.println("La categoria existe: " + existe);
 		}
 		
@@ -168,6 +196,117 @@ public class DemojpaApplication implements CommandLineRunner {
 			System.out.println("Total Paginas: " + page.getTotalPages());
 			for (Categoria cat : page)
 				System.out.println(cat.getId() + " " + cat.getNombre());
+		}
+		
+		private void buscarTrips() {
+			List<Trip> lista = repoTrip.findAll();
+			for (Trip trip : lista)
+				System.out.println(trip.getId() + " " + trip.getNombre()
+				+ trip.getCategoria().getNombre());
+		}
+		
+		private void guardarTrip() {
+			Trip trip = new Trip();
+			trip.setNombre("Caminata en la playa");
+			trip.setDescripcion("Bonitas caminatas en la playa San Marcelino");
+			trip.setFecha(new Date());
+			trip.setCosto(15.0);
+			trip.setEstatus("Aprobada");
+			trip.setDestacado(0);
+			trip.setImagen("trip1.png");
+			trip.setDescripcion("Esta es una descripcion larga!!!");
+			trip.setDetalles("Detalles del trip");
+			Categoria categoria = new Categoria();
+			categoria.setId(1);
+			trip.setCategoria(categoria);
+			
+			repoTrip.save(trip);
+		}
+		
+		private List<Perfil> getListaPerfiles(){
+			
+			List<Perfil> lista = new LinkedList<Perfil>();
+			Perfil perfil1 = new Perfil();
+			perfil1.setNombre("SuperAdministrador");
+			
+			Perfil perfil2 = new Perfil();
+			perfil2.setNombre("Admin");
+			
+			Perfil perfil3 = new Perfil();
+			perfil3.setNombre("Visitante");
+	
+			
+			lista.add(perfil1);
+			lista.add(perfil2);
+			lista.add(perfil3);
+			
+			return lista;
+		}
+		
+		private void crearPerfiles() {
+			
+			repoPerfil.saveAll(getListaPerfiles());
+		}
+		
+		private void crearUsuarioConDosPerfiles() {
+			Usuario usuario = new Usuario();
+			usuario.setNombre("Cesar Sanchez");
+			usuario.setEmail("correo@correo.com");
+			usuario.setUsarname("csanchez");
+			usuario.setPassword("123");
+			usuario.setEstatus("Activo");
+			
+			Perfil perfil1 = new Perfil();
+			perfil1.setId(1);
+			
+			Perfil perfil2 = new Perfil();
+			perfil2.setId(2);
+			
+			usuario.agregarPerfil(perfil1);
+			usuario.agregarPerfil(perfil2);
+			
+			repoUsuario.save(usuario);
+		
+		}
+		
+		private void getUsuario() {
+			Optional<Usuario> usuario = repoUsuario.findById(1);
+			if (usuario.isPresent()) {
+				Usuario usu = usuario.get();
+				System.out.println("Usuario: " + usu.getNombre());
+				System.out.println("Perfiles del Usuario:");
+				for (Perfil p : usu.getPerfiles()) {
+					System.out.println(p.getNombre());
+				}
+			}else {
+				System.out.println("Usuario sin perfiles");
+			}
+		}
+		
+		private void buscarTripPorEstatus() {
+			List<Trip> lista = repoTrip.findByEstatus("Aprobada");
+			for (Trip t : lista)
+				System.out.println(t.getId() + ": " + t.getNombre() + " Estatus: " + t.getEstatus());
+		}
+		
+		private void buscarTripPorDestacadoEstatusOrdenadosDescId() {
+			List<Trip> lista = repoTrip.findByDestacadoAndEstatusOrderByIdDesc(0, "Aprobada");
+			for (Trip t : lista)
+				System.out.println(t.getId() + ": " + t.getNombre() + " Estatus: " + t.getEstatus() 
+				                    + " Destacado: " + t.getDestacado());
+		}
+		
+		private void buscarTripEntreCosto() {
+			List<Trip> lista = repoTrip.findByCostoBetween(10, 20);
+			for (Trip t : lista)
+				System.out.println(t.getId() + ": " + t.getNombre() + " Estatus: " + t.getCosto());
+		}
+		
+		private void buscarTripEstosEstatus() {
+			String[] estatus = new String[] {"Aprobada", "Rechazada"};
+			List<Trip> lista = repoTrip.findByEstatusIn(estatus);
+			for (Trip t : lista)
+				System.out.println(t.getId() + ": " + t.getNombre() + " Estatus: " + t.getEstatus());
 		}
 		
 		
